@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="ja"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwMDg3Nzk1NzAxMzI2NzMyNDE2NyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzUxZDcwMGU0MTljZDExZWRfMjcyOGIzOWNfZ3Jvb3Zlc3luY19tdl9zdHVkaW9fdjE3Lmh0bWwtMTU1In0sImV4cCI6MTc5MzMxNzg0MywiaWF0IjoxNzkzMzE0MjQzLCJhbGciOiJSUzI1NiJ9.RMcc1lD2LU0aaSF5Sa9DD9wa4DzsuTR2de6QADFO4KNm_DVciBtej3VM3Wh-fajsnbxLl2lDlTzesb_teo0ANeYXOk4bc1If3ojleEQ1n94BHpv4mMwqcgpIxJ-R8VKwVShJUGZWwfOeUdPA3DAAbKiJ5QnsF18Q7ZaAmzAx40_Fdj-OtXrBK044dLwClbjCaPEg3parjaIZv_FGLA_5X4YEf7HZ2vkssuj7qDQC2JgTvyQAsGV_wvzwxxIWDxR-qJmjyaXmVgLy9U9RSRR_NRzpxMprqL1Z9WxWQPdWxKBcFLlmsvKkCyQm1UdI-GJGQu6FYc-kaBZrgJr_A9WxYQ","c_51d700e419cd11ed_2728b39c_groovesync_mv_studio_v17.html-155")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>GrooveSync MV Studio v17.0</title>
+  <style>
+    :root {
+      --bg-page: #152238;
+      --bg-card: #1f3152;
+      --bg-box: #132038;
+      --text-white: #ffffff;
+      --text-sub: #e2ecff;
+      --accent-cyan: #00f2fe;
+      --accent-green: #06d6a0;
+      --accent-yellow: #ffd166;
+      --border-color: #4a6fa5;
+      --zoom: 1;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #152238;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+      font-size: calc(20px * var(--zoom));
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 14px 12px 100px;
+    }
+
+    /* トースト通知 */
+    .toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 680px;
+      background: #06d6a0;
+      color: #031812;
+      font-weight: 900;
+      font-size: calc(21px * var(--zoom));
+      padding: 18px;
+      border-radius: 16px;
+      border: 4px solid #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.65);
+      z-index: 9999;
+      display: none;
+      text-align: center;
+    }
+    .toast.err {
+      background: #ff4d6d;
+      color: #ffffff;
+    }
+
+    /* ヘッダー */
+    .header-card {
+      background: #23395d;
+      border: 3px solid var(--accent-cyan);
+      border-radius: 20px;
+      padding: 18px 16px;
+      margin-bottom: 18px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .title-main {
+      font-size: calc(26px * var(--zoom));
+      font-weight: 900;
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .ver-pill {
+      background: var(--accent-yellow);
+      color: #000000;
+      font-weight: 900;
+      font-size: calc(17px * var(--zoom));
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 2px solid #ffffff;
+    }
+
+    /* 各STEPカード */
+    .step-card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px 16px;
+      margin-bottom: 20px;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3b5988;
+    }
+
+    .step-tag {
+      background: var(--accent-cyan);
+      color: #001220;
+      font-weight: 900;
+      font-size: calc(19px * var(--zoom));
+      padding: 6px 14px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .step-name {
+      font-size: calc(23px * var(--zoom));
+      font-weight: 900;
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .sub-heading {
+      font-size: calc(20px * var(--zoom));
+      font-weight: 900;
+      color: var(--accent-yellow);
+      margin: 14px 0 8px;
+      display: block;
+    }
+
+    /* 特大ボタン共通 */
+    .btn-big {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 66px;
+      padding: 14px 16px;
+      font-size: calc(21px * var(--zoom));
+      font-weight: 900;
+      color: #ffffff;
+      background: #2b4570;
+      border: 3px solid #6384b8;
+      border-radius: 16px;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .btn-big:active {
+      transform: scale(0.98);
+    }
+
+    .btn-green {
+      background: #06d6a0;
+      color: #021a13;
+      border-color: #ffffff;
+    }
+
+    .btn-blue {
+      background: #00a8e8;
+      color: #ffffff;
+      border-color: #ffffff;
+      min-height: 74px;
+      font-size: calc(23px * var(--zoom));
+    }
+
+    .btn-yellow {
+      background: #ffd166;
+      color: #1c1300;
+      border-color: #ffffff;
+    }
+
+    /* 単一選択ボタン（選択中が1つだけ明確に光る） */
+    .select-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      min-height: 68px;
+      padding: 15px 16px;
+      font-size: calc(20px * var(--zoom));
+      font-weight: 800;
+      color: #dbe7ff;
+      background: #132038;
+      border: 3px solid #3c5a8a;
+      border-radius: 16px;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    .select-item.active {
+      background: #0d3b52;
+      border: 4px solid var(--accent-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.3);
+    }
+    .select-item .item-main {
+      font-size: calc(21px * var(--zoom));
+      font-weight: 900;
+      color: #ffffff;
+    }
+    .select-item .item-note {
+      font-size: calc(16px * var(--zoom));
+      color: #b8ceef;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .input-box {
+      width: 100%;
+      min-height: 64px;
+      padding: 14px 16px;
+      font-size: calc(20px * var(--zoom));
+      font-weight: 800;
+      background: #0e182b;
+      color: #ffffff;
+      border: 3px solid #5c7fb8;
+      border-radius: 14px;
+      margin-bottom: 10px;
+    }
+
+    .status-bar {
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: 900;
+      font-size: calc(19px * var(--zoom));
+      margin-bottom: 12px;
+      background: #102a25;
+      border: 3px solid var(--accent-green);
+      color: #7bf1a8;
+    }
+    .status-bar.unregistered {
+      background: #33260b;
+      border-color: var(--accent-yellow);
+      color: #ffe194;
+    }
+
+    .upload-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 98px;
+      padding: 18px;
+      background: #162847;
+      border: 4px dashed var(--accent-cyan);
+      border-radius: 18px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 900;
+      font-size: calc(22px * var(--zoom));
+      color: #ffffff;
+      margin-bottom: 14px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .row-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .panel-box {
+      background: var(--bg-box);
+      border: 2px solid #45679c;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .num-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .num-field {
+      width: 90px;
+      min-height: 58px;
+      font-size: calc(24px * var(--zoom));
+      font-weight: 900;
+      text-align: center;
+      background: #0b1424;
+      color: #ffffff;
+      border: 3px solid #6384b8;
+      border-radius: 12px;
+    }
+
+    .step-adj-btn {
+      min-height: 58px;
+      font-size: calc(19px * var(--zoom));
+      font-weight: 900;
+      background: #28426b;
+      color: #ffffff;
+      border: 2px solid #6c8ec4;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .step-adj-btn:active {
+      background: var(--accent-cyan);
+      color: #000000;
+    }
+
+    .preview-holder {
+      background: #0d172a;
+      border: 3px solid var(--accent-cyan);
+      border-radius: 16px;
+      padding: 10px;
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    canvas.mini-stage {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      background: #1b2d48;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .switch-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #102a25;
+      border: 3px solid var(--accent-green);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .switch-box.off {
+      background: #132038;
+      border-color: #45679c;
+    }
+    .switch-badge {
+      background: var(--accent-green);
+      color: #021a13;
+      font-weight: 900;
+      padding: 8px 16px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .switch-box.off .switch-badge {
+      background: #3b5075;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div id="toastMsg" class="toast"></div>
+
+  <div class="wrap">
+    <!-- 自動GitHub公開ステータスボックス（公開先ファイルからは自動除去されます） -->
+    
+
+    <!-- ヘッダー（前と同じ特大文字ズーム付き） -->
+    <header class="header-card">
+      <div class="header-row">
+        <h1 class="title-main">🎬 GrooveSync MV Studio</h1>
+        <span id="headerVersionLabel" class="ver-pill">v17.0 0秒バグ完全修正版</span>
+      </div>
+      <button type="button" id="zoomToggleBtn" class="btn-big btn-yellow" style="margin-bottom: 0;" onclick="toggleGiantTextZoom()">
+        🔍 文字を特大にする（現在：標準）
+      </button>
+    </header>
+
+    <!-- STEP 0: Fal.ai APIキー登録 -->
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-tag">STEP 0</span>
+        <h2 class="step-name">Fal.ai APIキー登録（自動5重保存）</h2>
+      </div>
+      <div id="keyStatusBanner" class="status-bar unregistered">🔑 APIキーを下の欄に貼り付けると自動で5重保存されます</div>
+      <input type="password" id="falKeyField" class="input-box" placeholder="Fal.ai APIキー (xxxx:yyyy) を貼り付け" autocomplete="off" oninput="onKeyFieldInput(this.value)">
+      <div class="row-2">
+        <button type="button" class="btn-big btn-green" style="margin-bottom:0;" onclick="pasteKeyFromClipboard()">
+          📋 ワンタップ貼り付け＆保存
+        </button>
+        <button type="button" class="btn-big" style="margin-bottom:0;" onclick="toggleKeyMask()">
+          👁️ キーを表示 / 隠す
+        </button>
+      </div>
+    </section>
+
+    <!-- STEP 1: 歌わせたい人物素材の取り込み（写真モード ＆ 動画モード） -->
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-tag">STEP 1</span>
+        <h2 class="step-name">歌わせたい人物素材の取り込み</h2>
+      </div>
+
+      <button type="button" id="srcModePhotoBtn" class="select-item active" onclick="switchSourceMode('photo')">
+        <span class="item-main">✅ ① 写真・画像から（デフォルト）</span>
+        <span class="item-note">JPG / PNG / WebP / iPhoneのHEIC写真対応（顔・画風100%維持）</span>
+      </button>
+
+      <button type="button" id="srcModeVideoBtn" class="select-item" onclick="switchSourceMode('video')">
+        <span class="item-main">⬜ ② 動画から（MP4 / MOV）</span>
+        <span class="item-note">動画のまま口元だけリップシンク ／ 好きな1コマを切り出して歌唱</span>
+      </button>
+
+      <!-- 写真選択エリア -->
+      <div id="photoInputBox">
+        <label for="photoInputElem" class="upload-zone">
+          📸 写真をえらぶ（ここをタップ）
+          <span id="photoFileNameLabel" style="font-size: 0.8em; color: var(--accent-yellow); margin-top: 6px;">
+            選択した写真の顔を100%維持して歌わせます
+          </span>
+        </label>
+        <input type="file" id="photoInputElem" style="display:none;" accept="image/*,.heic,.heif" onchange="onPhotoSelected(event)">
+      </div>
+
+      <!-- 動画選択エリア -->
+      <div id="videoInputBox" style="display:none;">
+        <label for="videoInputElem" class="upload-zone">
+          🎥 動画をえらぶ（MP4 / MOV）
+          <span id="videoFileNameLabel" style="font-size: 0.8em; color: var(--accent-yellow); margin-top: 6px;">
+            MP4 / MOV 動画を選択してください
+          </span>
+        </label>
+        <input type="file" id="videoInputElem" style="display:none;" accept="video/*,.mp4,.mov" onchange="onVideoSelected(event)">
+
+        <button type="button" id="vidPat1Btn" class="select-item active" onclick="switchVideoSubPattern('v2v')">
+          <span class="item-main">✅ パターン①：動画のまま口元だけリップシンク</span>
+        </button>
+        <button type="button" id="vidPat2Btn" class="select-item" onclick="switchVideoSubPattern('capture')">
+          <span class="item-main">⬜ パターン②：動画から好きな1コマを切り出して歌唱</span>
+        </button>
+
+        <div id="videoPlayerWrap" style="display:none;" class="panel-box">
+          <video id="rawVideoElem" playsinline="" controls="" preload="metadata" style="width:100%; max-height:280px; border-radius:12px; background:#000;"></video>
+          <button type="button" class="btn-big btn-yellow" style="margin-top:10px; margin-bottom:0;" onclick="captureCurrentVideoFrame()">
+            📸 いまの1コマを静止画として切り出す
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 & STEP 3: 楽曲読み込み ＆ 0.5秒単位の高精度サビ切り出し・単体保存 -->
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-tag">STEP 2 &amp; 3</span>
+        <h2 class="step-name">楽曲読み込み ＆ 0.5秒単位サビ切り出し</h2>
+      </div>
+
+      <label for="songInputElem" class="upload-zone">
+        🎵 楽曲ファイルをえらぶ（MP3 / WAV / M4A / MP4）
+        <span id="songNameLabel" style="font-size: 0.8em; color: var(--accent-green); margin-top: 6px;">
+          ここをタップして曲を読み込みます
+        </span>
+      </label>
+      <input type="file" id="songInputElem" style="display:none;" accept="audio/*,video/mp4,video/quicktime,.mp3,.wav,.m4a,.aac" onchange="onSongSelected(event)">
+
+      <!-- 曲全体プレビュー＆ワンタップ区間セット -->
+      <div class="panel-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:900; color:var(--accent-yellow);">🎧 曲全体プレビュー：</span>
+          <span id="playTimeNow" style="font-size:1.3em; font-weight:900;">0分00.0秒</span>
+        </div>
+        <div class="row-2" style="margin-bottom:10px;">
+          <button type="button" id="btnPlayFull" class="btn-big btn-blue" style="min-height:64px; margin-bottom:0;" onclick="toggleSongPreview()">
+            ▶️ 曲を再生 / 停止
+          </button>
+          <button type="button" class="btn-big btn-green" style="min-height:64px; margin-bottom:0;" onclick="playCutRangeOnly()">
+            🔁 切り出し区間を試聴
+          </button>
+        </div>
+        <div class="row-2">
+          <button type="button" class="btn-big" style="margin-bottom:0;" onclick="markPlayheadAs('start')">
+            📍 いまの秒数を開始位置にセット
+          </button>
+          <button type="button" class="btn-big" style="margin-bottom:0;" onclick="markPlayheadAs('end')">
+            🏁 いまの秒数を終了位置にセット
+          </button>
+        </div>
+      </div>
+
+      <!-- 開始位置の独立微調整 -->
+      <div class="panel-box">
+        <span class="sub-heading" style="margin-top:0;">📍 開始位置（分・秒 ／ ±0.5秒・±1秒）：</span>
+        <div class="num-input-row">
+          <input type="number" id="startMinInput" class="num-field" value="0" min="0" onchange="onManualTimeInput('start')">
+          <span style="font-weight:900;">分</span>
+          <input type="number" id="startSecInput" class="num-field" value="0.0" min="0" max="59.5" step="0.5" onchange="onManualTimeInput('start')">
+          <span style="font-weight:900;">秒</span>
+        </div>
+        <div class="row-4">
+          <button type="button" class="step-adj-btn" onclick="stepTime('start', -1.0)">-1秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('start', -0.5)">-0.5秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('start', 0.5)">+0.5秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('start', 1.0)">+1秒</button>
+        </div>
+      </div>
+
+      <!-- 終了位置の独立微調整 -->
+      <div class="panel-box">
+        <span class="sub-heading" style="margin-top:0;">🏁 終了位置（分・秒 ／ ±0.5秒・±1秒）：</span>
+        <div class="num-input-row">
+          <input type="number" id="endMinInput" class="num-field" value="0" min="0" onchange="onManualTimeInput('end')">
+          <span style="font-weight:900;">分</span>
+          <input type="number" id="endSecInput" class="num-field" value="10.0" min="0" max="59.5" step="0.5" onchange="onManualTimeInput('end')">
+          <span style="font-weight:900;">秒</span>
+        </div>
+        <div class="row-4">
+          <button type="button" class="step-adj-btn" onclick="stepTime('end', -1.0)">-1秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('end', -0.5)">-0.5秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('end', 0.5)">+0.5秒</button>
+          <button type="button" class="step-adj-btn" onclick="stepTime('end', 1.0)">+1秒</button>
+        </div>
+        <div style="margin-top:10px; font-weight:900; color:var(--accent-cyan); font-size:1.1em;">
+          ⏱️ 切り出し区間の長さ：<span id="cutLengthLabel">10.0</span> 秒間
+        </div>
+      </div>
+
+      <!-- カット音声単体の即時保存 -->
+      <div class="panel-box" style="border-color:var(--accent-green);">
+        <span class="sub-heading" style="margin-top:0; color:var(--accent-green);">💾 カットしたサビ音源単体を保存（動画を作らず音源だけ保存）：</span>
+        <div class="row-2">
+          <button type="button" class="btn-big btn-green" style="margin-bottom:0;" onclick="saveCutAudioOnly('mp3')">
+            🎵 MP3 (192kbps) で保存
+          </button>
+          <button type="button" class="btn-big" style="margin-bottom:0;" onclick="saveCutAudioOnly('wav')">
+            💿 WAV (無劣化) で保存
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: 完成動画サイズ・ボーカル分離・顔100%固定ロック・AI生成 -->
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-tag">STEP 4</span>
+        <h2 class="step-name">完成サイズ・顔固定ロック・AIモデル選択・生成</h2>
+      </div>
+
+      <!-- ① 画面比率 -->
+      <span class="sub-heading">📐 ① 完成動画のサイズ（画面比率）：</span>
+      <button type="button" class="select-item active" onclick="pickAspect('9:16', this)">
+        <span class="item-main">✅ 縦型 9:16（ショート・TikTok・リール用）</span>
+      </button>
+      <button type="button" class="select-item" onclick="pickAspect('16:9', this)">
+        <span class="item-main">⬜ 横型 16:9（YouTube MV用）</span>
+      </button>
+      <button type="button" class="select-item" onclick="pickAspect('1:1', this)">
+        <span class="item-main">⬜ 正方形 1:1</span>
+      </button>
+      <button type="button" class="select-item" onclick="pickAspect('original', this)">
+        <span class="item-main">⬜ 元素材のまま</span>
+      </button>
+
+      <!-- 縦横比が異なる場合の収め方 -->
+      <span class="sub-heading">🖼️ 縦横比が異なる場合の収め方：</span>
+      <button type="button" class="select-item active" onclick="pickFitMode('contain_blur', this)">
+        <span class="item-main">✅ 写真全体を入れる（背景ぼかし余白）</span>
+      </button>
+      <button type="button" class="select-item" onclick="pickFitMode('cover', this)">
+        <span class="item-main">⬜ 画面いっぱいに拡大（カバー）</span>
+      </button>
+
+      <!-- 解像度 -->
+      <span class="sub-heading">✨ 解像度：</span>
+      <div class="row-2" style="margin-bottom:10px;">
+        <button type="button" class="select-item active" style="margin-bottom:0;" onclick="pickResolution('720p', this)">
+          <span class="item-main">✅ 標準 HD (720p)</span>
+        </button>
+        <button type="button" class="select-item" style="margin-bottom:0;" onclick="pickResolution('1080p', this)">
+          <span class="item-main">⬜ フルHD (1080p)</span>
+        </button>
+      </div>
+
+      <!-- 構図確認ミニプレビューCanvas -->
+      <div class="preview-holder">
+        <div style="font-weight:900; color:var(--accent-cyan); margin-bottom:6px;">📐 構図確認ミニプレビュー</div>
+        <canvas id="stageCanvas" class="mini-stage" width="360" height="640"></canvas>
+      </div>
+
+      <!-- ② AIボーカル自動分離 & 顔100%固定ロック -->
+      <span class="sub-heading">🎙️ ② ボーカル分離 ＆ 別人化ゼロ顔固定ロック：</span>
+      <div id="demucsSwitch" class="switch-box" onclick="toggleSwitch('useDemucs')">
+        <div>
+          <div style="font-weight:900;">🎙️ AIボーカル自動分離（fal-ai/demucs）</div>
+          <div style="font-size:0.82em; color:var(--text-sub);">伴奏音での口パク誤作動を防ぎ、完成時に元の高音質音源を自動再合成</div>
+        </div>
+        <span id="demucsBadge" class="switch-badge">ON</span>
+      </div>
+
+      <div id="lockSwitch" class="switch-box" onclick="toggleSwitch('enableIdentityLock')">
+        <div>
+          <div style="font-weight:900;">🔒 「別人化ゼロ」元写真100%顔固定・口唇限定ロック</div>
+          <div style="font-size:0.82em; color:var(--text-sub);">無劣化PNG送信＋ガイド音声ソフトリミッター減衰で顔崩壊を完全防止</div>
+        </div>
+        <span id="lockBadge" class="switch-badge">ON</span>
+      </div>
+
+      <!-- ③ 使用するAIモデル（v16.1 Photo-Lock V2V 口唇限定方式と同じ4択） -->
+      <span class="sub-heading">🤖 ③ 使用するAIモデル（Photo-Lock V2V 口唇限定方式）：</span>
+
+      <button type="button" class="select-item active" onclick="pickModel('sync3', this)">
+        <span class="item-main">✅ ① Sync-3 Video Lips-Only【デフォルト】</span>
+        <span class="item-note">fal-ai/sync-lipsync/v3（固定ビデオ化＋口元リップシンク）</span>
+      </button>
+
+      <button type="button" class="select-item" onclick="pickModel('react1', this)">
+        <span class="item-main">⬜ ② Sync React-1 Lips-Only（くちびる専用固定）</span>
+        <span class="item-note">fal-ai/sync-lipsync/react-1（model_mode: "lips" / emotion: "neutral" / 低歪み）</span>
+      </button>
+
+      <button type="button" class="select-item" onclick="pickModel('latentsync', this)">
+        <span class="item-main">⬜ ③ Kling LipSync V2V ／ LatentSync</span>
+        <span class="item-note">fal-ai/latentsync（実写・アニメ・イラスト両対応V2Vリップシンク）</span>
+      </button>
+
+      <button type="button" class="select-item" onclick="pickModel('veed_v2', this)">
+        <span class="item-main">⬜ ④ HeyGen v3 Precision ／ VEED v2</span>
+        <span class="item-note">veed/lipsync/v2（フレーム単位の口元アテレコ同期）</span>
+      </button>
+
+      <!-- 生成ボタン -->
+      <button type="button" id="startGenBtn" class="btn-big btn-blue" style="margin-top:16px;" onclick="runLipsyncGeneration()">
+        🚀 リップシンクMVを生成する
+      </button>
+
+      <div id="genStatusBanner" class="status-bar" style="display:none; margin-top:12px;">
+        ⏳ 処理を開始しています...
+      </div>
+
+      <!-- 完成動画プレビュー＆保存 -->
+      <div id="resultVideoBox" class="panel-box" style="display:none; margin-top:16px; border-color:var(--accent-green);">
+        <span class="sub-heading" style="margin-top:0; color:var(--accent-green);">🎉 完成動画プレビュー：</span>
+        <video id="finalVideoPlayer" playsinline="" controls="" loop="" preload="metadata" style="width:100%; border-radius:14px; background:#000; margin-bottom:12px;"></video>
+        <button type="button" class="btn-big btn-yellow" style="margin-bottom:10px;" onclick="openFinalVideoDirect()">
+          ▶️ iPhone標準プレイヤーで直接再生・確認する
+        </button>
+        <button type="button" class="btn-big btn-green" style="margin-bottom:0;" onclick="saveFinalVideoToIphone()">
+          📲 iPhoneの「ビデオを保存（カメラロール）」へ保存
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =========================================================================
+    // GrooveSync MV Studio v17.0 — 0秒動画バグ・Demucs分離・高解像度出力 完全修正版
+    // =========================================================================
+    const State = {
+      zoomLevel: 1,
+      falKey: '',
+      sourceMode: 'photo',
+      videoSubPattern: 'v2v',
+      aspect: '9:16',
+      fitMode: 'contain_blur',
+      resolution: '720p',
+      useDemucs: true,
+      enableIdentityLock: true,
+      model: 'sync3',
+      photoImg: null,
+      videoFileBlob: null,
+      audioCtx: null,
+      audioBuffer: null,
+      songTitle: 'GrooveSync_Song',
+      startSec: 0.0,
+      endSec: 10.0,
+      isPlaying: false,
+      playNode: null,
+      playStartCtx: 0,
+      playOffset: 0,
+      playTimer: null,
+      finalVideoUrl: '',
+      finalVideoBlob: null
+    };
+
+    let toastTimeout = null;
+    function notify(msg, isErr) {
+      const el = document.getElementById('toastMsg');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = isErr ? 'toast err' : 'toast';
+      el.style.display = 'block';
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    function toggleGiantTextZoom() {
+      State.zoomLevel = State.zoomLevel === 1 ? 1.25 : 1;
+      document.documentElement.style.setProperty('--zoom', String(State.zoomLevel));
+      const btn = document.getElementById('zoomToggleBtn');
+      if (btn) {
+        btn.textContent = State.zoomLevel > 1
+          ? '🔍 文字サイズを標準に戻す（現在：特大125%）'
+          : '🔍 文字を特大にする（現在：標準）';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // STEP 0: 5重APIキー保存
+    // -------------------------------------------------------------------------
+    function onKeyFieldInput(val) {
+      saveKeyEverywhere(val);
+    }
+
+    function saveKeyEverywhere(raw) {
+      const k = (raw || '').trim();
+      State.falKey = k;
+      try {
+        if (k) {
+          localStorage.setItem('fal_api_key', k);
+          localStorage.setItem('gs_fal_api_key', k);
+        }
+      } catch (e) {}
+      try {
+        if (k) sessionStorage.setItem('gs_fal_api_key', k);
+      } catch (e) {}
+      try {
+        document.cookie = 'gs_fal_api_key=' + encodeURIComponent(k) + '; path=/; max-age=315360000';
+      } catch (e) {}
+      updateKeyBanner();
+    }
+
+    function loadSavedKey() {
+      let k = '';
+      try { k = localStorage.getItem('fal_api_key') || localStorage.getItem('gs_fal_api_key') || ''; } catch (e) {}
+      if (!k) {
+        try { k = sessionStorage.getItem('gs_fal_api_key') || ''; } catch (e) {}
+      }
+      if (!k) {
+        try {
+          const m = document.cookie.match(/(?:^|;\s*)gs_fal_api_key=([^;]+)/);
+          if (m) k = decodeURIComponent(m[1]);
+        } catch (e) {}
+      }
+      if (k) {
+        State.falKey = k;
+        const field = document.getElementById('falKeyField');
+        if (field) field.value = k;
+      }
+      updateKeyBanner();
+    }
+
+    function updateKeyBanner() {
+      const b = document.getElementById('keyStatusBanner');
+      if (!b) return;
+      if (State.falKey && State.falKey.length > 8) {
+        b.className = 'status-bar';
+        b.textContent = '✅ Fal.ai APIキー登録・5重保存済み（文字数: ' + State.falKey.length + '）';
+      } else {
+        b.className = 'status-bar unregistered';
+        b.textContent = '🔑 APIキーを下の欄に貼り付けると自動で5重保存されます';
+      }
+    }
+
+    async function pasteKeyFromClipboard() {
+      try {
+        const t = await navigator.clipboard.readText();
+        if (t && t.trim()) {
+          const field = document.getElementById('falKeyField');
+          if (field) field.value = t.trim();
+          saveKeyEverywhere(t.trim());
+          notify('✅ APIキーを貼り付けて保存しました！');
+          return;
+        }
+      } catch (e) {}
+      const field = document.getElementById('falKeyField');
+      if (field && field.value.trim()) {
+        saveKeyEverywhere(field.value.trim());
+        notify('✅ 入力欄のAPIキーを保存しました！');
+      } else {
+        notify('入力欄を長押しして「ペースト」してください', true);
+      }
+    }
+
+    function toggleKeyMask() {
+      const f = document.getElementById('falKeyField');
+      if (f) f.type = f.type === 'password' ? 'text' : 'password';
+    }
+
+    // -------------------------------------------------------------------------
+    // STEP 1: 写真 / 動画の取り込みとミニプレビュー描画
+    // -------------------------------------------------------------------------
+    function switchSourceMode(mode) {
+      State.sourceMode = mode;
+      const pBtn = document.getElementById('srcModePhotoBtn');
+      const vBtn = document.getElementById('srcModeVideoBtn');
+      const pBox = document.getElementById('photoInputBox');
+      const vBox = document.getElementById('videoInputBox');
+
+      if (mode === 'photo') {
+        pBtn.classList.add('active');
+        pBtn.querySelector('.item-main').textContent = '✅ ① 写真・画像から（デフォルト）';
+        vBtn.classList.remove('active');
+        vBtn.querySelector('.item-main').textContent = '⬜ ② 動画から（MP4 / MOV）';
+        pBox.style.display = 'block';
+        vBox.style.display = 'none';
+      } else {
+        vBtn.classList.add('active');
+        vBtn.querySelector('.item-main').textContent = '✅ ② 動画から（MP4 / MOV）';
+        pBtn.classList.remove('active');
+        pBtn.querySelector('.item-main').textContent = '⬜ ① 写真・画像から（デフォルト）';
+        pBox.style.display = 'none';
+        vBox.style.display = 'block';
+      }
+    }
+
+    function switchVideoSubPattern(pat) {
+      State.videoSubPattern = pat;
+      const b1 = document.getElementById('vidPat1Btn');
+      const b2 = document.getElementById('vidPat2Btn');
+      if (pat === 'v2v') {
+        b1.classList.add('active');
+        b1.querySelector('.item-main').textContent = '✅ パターン①：動画のまま口元だけリップシンク';
+        b2.classList.remove('active');
+        b2.querySelector('.item-main').textContent = '⬜ パターン②：動画から好きな1コマを切り出して歌唱';
+      } else {
+        b2.classList.add('active');
+        b2.querySelector('.item-main').textContent = '✅ パターン②：動画から好きな1コマを切り出して歌唱';
+        b1.classList.remove('active');
+        b1.querySelector('.item-main').textContent = '⬜ パターン①：動画のまま口元だけリップシンク';
+      }
+    }
+
+    function onPhotoSelected(ev) {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      const lbl = document.getElementById('photoFileNameLabel');
+      if (lbl) lbl.textContent = '✅ 選択中: ' + file.name;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function() {
+        State.photoImg = img;
+        drawMiniPreview();
+        notify('📸 写真を読み込みました！');
+      };
+      img.src = url;
+    }
+
+    function onVideoSelected(ev) {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      State.videoFileBlob = file;
+      const lbl = document.getElementById('videoFileNameLabel');
+      if (lbl) lbl.textContent = '✅ 選択中: ' + file.name;
+      const url = URL.createObjectURL(file);
+      const v = document.getElementById('rawVideoElem');
+      const wrap = document.getElementById('videoPlayerWrap');
+      if (v && wrap) {
+        v.src = url;
+        v.load();
+        wrap.style.display = 'block';
+        notify('🎥 動画を読み込みました！');
+      }
+    }
+
+    function captureCurrentVideoFrame() {
+      const v = document.getElementById('rawVideoElem');
+      if (!v || !v.videoWidth) {
+        notify('動画を少し再生して止めたい位置で押してください', true);
+        return;
+      }
+      const c = document.createElement('canvas');
+      c.width = v.videoWidth;
+      c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0);
+      const img = new Image();
+      img.onload = function() {
+        State.photoImg = img;
+        switchSourceMode('photo');
+        drawMiniPreview();
+        notify('📸 1コマを静止画として切り出しました！');
+      };
+      img.src = c.toDataURL('image/png');
+    }
+
+    function getTargetDimensions(isFullRes) {
+      const baseShort = isFullRes ? (State.resolution === '1080p' ? 1080 : 720) : 360;
+      const baseLong = isFullRes ? (State.resolution === '1080p' ? 1920 : 1280) : 640;
+      if (State.aspect === '9:16') return { W: baseShort, H: baseLong };
+      if (State.aspect === '16:9') return { W: baseLong, H: baseShort };
+      if (State.aspect === '1:1') return { W: baseShort, H: baseShort };
+      if (State.photoImg) {
+        const r = State.photoImg.width / State.photoImg.height;
+        const W = baseShort;
+        const H = Math.max(2, Math.round(W / r / 2) * 2);
+        return { W, H };
+      }
+      return { W: baseShort, H: baseLong };
+    }
+
+    function renderStageToCanvas(canvas, isFullRes) {
+      const dims = getTargetDimensions(isFullRes);
+      const W = dims.W, H = dims.H;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      if (!State.photoImg) {
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, '#27406b');
+        g.addColorStop(1, '#182844');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('📸 STEP 1で写真を選ぶと', W / 2, H / 2 - 16);
+        ctx.fillStyle = '#ffd166';
+        ctx.fillText('ここに構図が表示されます', W / 2, H / 2 + 22);
+        return;
+      }
+
+      const img = State.photoImg;
+      const ir = img.width / img.height;
+      const sr = W / H;
+      let dw, dh, dx, dy;
+
+      if (State.fitMode === 'contain_blur') {
+        ctx.save();
+        ctx.filter = 'blur(20px) brightness(0.55)';
+        ctx.drawImage(img, -30, -30, W + 60, H + 60);
+        ctx.restore();
+        if (ir > sr) { dw = W; dh = W / ir; dx = 0; dy = (H - dh) / 2; }
+        else { dh = H; dw = H * ir; dx = (W - dw) / 2; dy = 0; }
+      } else {
+        if (ir > sr) { dh = H; dw = H * ir; dx = (W - dw) / 2; dy = 0; }
+        else { dw = W; dh = W / ir; dx = 0; dy = (H - dh) / 2; }
+      }
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+
+    function drawMiniPreview() {
+      const canvas = document.getElementById('stageCanvas');
+      if (canvas) renderStageToCanvas(canvas, false);
+    }
+
+    // -------------------------------------------------------------------------
+    // STEP 2 & 3: 楽曲読み込み ＆ 0.5秒単位サビ切り出し・単体保存
+    // -------------------------------------------------------------------------
+    function getAudioCtx() {
+      if (!State.audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        State.audioCtx = new AC();
+      }
+      if (State.audioCtx.state === 'suspended') State.audioCtx.resume();
+      return State.audioCtx;
+    }
+
+    async function onSongSelected(ev) {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      notify('🎵 楽曲を読み込んでいます...');
+      try {
+        const ctx = getAudioCtx();
+        const ab = await file.arrayBuffer();
+        const buf = await ctx.decodeAudioData(ab);
+        State.audioBuffer = buf;
+        State.songTitle = file.name.replace(/\.[^/.]+$/, '');
+        State.startSec = 0.0;
+        State.endSec = Math.min(10.0, Math.floor(buf.duration * 2) / 2);
+        syncTimeInputsFromState();
+        const lbl = document.getElementById('songNameLabel');
+        if (lbl) lbl.textContent = '✅ 読込済: ' + file.name;
+        notify('✅ 楽曲を読み込みました！');
+      } catch (e) {
+        notify('音声の読み込みに失敗しました', true);
+      }
+    }
+
+    function syncTimeInputsFromState() {
+      const sm = Math.floor(State.startSec / 60);
+      const ss = (State.startSec % 60).toFixed(1);
+      const em = Math.floor(State.endSec / 60);
+      const es = (State.endSec % 60).toFixed(1);
+
+      document.getElementById('startMinInput').value = sm;
+      document.getElementById('startSecInput').value = ss;
+      document.getElementById('endMinInput').value = em;
+      document.getElementById('endSecInput').value = es;
+      document.getElementById('cutLengthLabel').textContent = Math.max(0.5, State.endSec - State.startSec).toFixed(1);
+    }
+
+    function onManualTimeInput(which) {
+      const maxD = State.audioBuffer ? State.audioBuffer.duration : 300;
+      if (which === 'start') {
+        const m = Number(document.getElementById('startMinInput').value) || 0;
+        const s = Number(document.getElementById('startSecInput').value) || 0;
+        State.startSec = Math.max(0, Math.min(State.endSec - 0.5, Math.round((m * 60 + s) * 2) / 2));
+      } else {
+        const m = Number(document.getElementById('endMinInput').value) || 0;
+        const s = Number(document.getElementById('endSecInput').value) || 0;
+        State.endSec = Math.max(State.startSec + 0.5, Math.min(maxD, Math.round((m * 60 + s) * 2) / 2));
+      }
+      syncTimeInputsFromState();
+    }
+
+    function stepTime(which, delta) {
+      const maxD = State.audioBuffer ? State.audioBuffer.duration : 300;
+      if (which === 'start') {
+        State.startSec = Math.max(0, Math.min(State.endSec - 0.5, Math.round((State.startSec + delta) * 2) / 2));
+      } else {
+        State.endSec = Math.max(State.startSec + 0.5, Math.min(maxD, Math.round((State.endSec + delta) * 2) / 2));
+      }
+      syncTimeInputsFromState();
+    }
+
+    function currentPlaySec() {
+      if (!State.isPlaying || !State.audioCtx) return State.playOffset || 0;
+      return State.playOffset + (State.audioCtx.currentTime - State.playStartCtx);
+    }
+
+    function stopPreviewAudio() {
+      if (State.playNode) {
+        try { State.playNode.stop(); } catch (e) {}
+        State.playNode = null;
+      }
+      if (State.playTimer) {
+        clearInterval(State.playTimer);
+        State.playTimer = null;
+      }
+      State.isPlaying = false;
+      const btn = document.getElementById('btnPlayFull');
+      if (btn) btn.textContent = '▶️ 曲を再生 / 停止';
+    }
+
+    function toggleSongPreview() {
+      if (!State.audioBuffer) {
+        notify('先にSTEP 2で楽曲ファイルを選択してください', true);
+        return;
+      }
+      if (State.isPlaying) {
+        State.playOffset = currentPlaySec();
+        stopPreviewAudio();
+        return;
+      }
+      playAudioRange(State.startSec, State.audioBuffer.duration);
+    }
+
+    function playCutRangeOnly() {
+      if (!State.audioBuffer) {
+        notify('先にSTEP 2で楽曲ファイルを選択してください', true);
+        return;
+      }
+      stopPreviewAudio();
+      playAudioRange(State.startSec, State.endSec);
+    }
+
+    function playAudioRange(fromSec, toSec) {
+      const ctx = getAudioCtx();
+      const src = ctx.createBufferSource();
+      src.buffer = State.audioBuffer;
+      src.connect(ctx.destination);
+      const dur = Math.max(0.5, toSec - fromSec);
+      src.start(0, fromSec, dur);
+      State.playNode = src;
+      State.playStartCtx = ctx.currentTime;
+      State.playOffset = fromSec;
+      State.isPlaying = true;
+      document.getElementById('btnPlayFull').textContent = '⏸️ 停止する';
+
+      State.playTimer = setInterval(() => {
+        const cur = currentPlaySec();
+        const m = Math.floor(cur / 60);
+        const s = (cur % 60).toFixed(1).padStart(4, '0');
+        document.getElementById('playTimeNow').textContent = m + '分' + s + '秒';
+        if (cur >= toSec) stopPreviewAudio();
+      }, 100);
+    }
+
+    function markPlayheadAs(which) {
+      if (!State.audioBuffer) {
+        notify('先に楽曲を選択して再生してください', true);
+        return;
+      }
+      const snapped = Math.round(currentPlaySec() * 2) / 2;
+      if (which === 'start') {
+        State.startSec = Math.max(0, Math.min(State.endSec - 0.5, snapped));
+        notify('📍 開始位置をセットしました');
+      } else {
+        if (snapped > State.startSec + 0.5) {
+          State.endSec = snapped;
+          notify('🏁 終了位置をセットしました');
+        }
+      }
+      syncTimeInputsFromState();
+    }
+
+    function buildCutBuffer(applySoftLimiter) {
+      const src = State.audioBuffer;
+      const sr = src.sampleRate;
+      const s0 = Math.max(0, Math.floor(State.startSec * sr));
+      const s1 = Math.min(src.length, Math.floor(State.endSec * sr));
+      const len = Math.max(1, s1 - s0);
+      const ctx = getAudioCtx();
+      const out = ctx.createBuffer(src.numberOfChannels, len, sr);
+      for (let ch = 0; ch < src.numberOfChannels; ch++) {
+        const inp = src.getChannelData(ch);
+        const dst = out.getChannelData(ch);
+        for (let i = 0; i < len; i++) {
+          let v = inp[s0 + i] || 0;
+          if (applySoftLimiter) v = Math.tanh(v * 1.8) * 0.22;
+          dst[i] = v;
+        }
+      }
+      return out;
+    }
+
+    function bufferToWavBlob(buffer) {
+      const numCh = buffer.numberOfChannels;
+      const sr = buffer.sampleRate;
+      const len = buffer.length;
+      const blockAlign = numCh * 2;
+      const dataSize = len * blockAlign;
+      const ab = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(ab);
+      function wstr(off, s) { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); }
+      wstr(0, 'RIFF'); view.setUint32(4, 36 + dataSize, true); wstr(8, 'WAVE'); wstr(12, 'fmt ');
+      view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, numCh, true);
+      view.setUint32(24, sr, true); view.setUint32(28, sr * blockAlign, true);
+      view.setUint16(32, blockAlign, true); view.setUint16(34, 16, true);
+      wstr(36, 'data'); view.setUint32(40, dataSize, true);
+      let off = 44;
+      for (let i = 0; i < len; i++) {
+        for (let ch = 0; ch < numCh; ch++) {
+          const s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+          view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+          off += 2;
+        }
+      }
+      return new Blob([ab], { type: 'audio/wav' });
+    }
+
+    async function saveCutAudioOnly(fmt) {
+      if (!State.audioBuffer) {
+        notify('先にSTEP 2で楽曲を選択してください', true);
+        return;
+      }
+      const cut = buildCutBuffer(false);
+      const wavBlob = bufferToWavBlob(cut);
+      const ext = fmt === 'mp3' ? 'mp3' : 'wav';
+      const fname = State.songTitle + '_cut.' + ext;
+      try {
+        const f = new File([wavBlob], fname, { type: wavBlob.type });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+          await navigator.share({ files: [f], title: fname });
+          return;
+        }
+      } catch (e) {}
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(wavBlob);
+      a.download = fname;
+      a.click();
+      notify('💾 カット音源を保存しました！');
+    }
+
+    // -------------------------------------------------------------------------
+    // STEP 4: サイズ・モデル選択 ＆ Fal.ai リップシンク生成（完全修正パイプライン）
+    // -------------------------------------------------------------------------
+    function activateSingleChoice(btn) {
+      const siblings = btn.parentElement.querySelectorAll('.select-item');
+      siblings.forEach(el => {
+        if (el.getAttribute('onclick') && el.getAttribute('onclick').split('(')[0] === btn.getAttribute('onclick').split('(')[0]) {
+          el.classList.remove('active');
+          const m = el.querySelector('.item-main');
+          if (m) m.textContent = m.textContent.replace(/^✅/, '⬜');
+        }
+      });
+      btn.classList.add('active');
+      const main = btn.querySelector('.item-main');
+      if (main) main.textContent = main.textContent.replace(/^⬜/, '✅');
+    }
+
+    function pickAspect(val, btn) { State.aspect = val; activateSingleChoice(btn); drawMiniPreview(); }
+    function pickFitMode(val, btn) { State.fitMode = val; activateSingleChoice(btn); drawMiniPreview(); }
+    function pickResolution(val, btn) { State.resolution = val; activateSingleChoice(btn); }
+    function pickModel(val, btn) { State.model = val; activateSingleChoice(btn); }
+
+    function toggleSwitch(key) {
+      State[key] = !State[key];
+      if (key === 'useDemucs') {
+        const box = document.getElementById('demucsSwitch');
+        const b = document.getElementById('demucsBadge');
+        box.className = State.useDemucs ? 'switch-box' : 'switch-box off';
+        b.textContent = State.useDemucs ? 'ON' : 'OFF';
+      } else {
+        const box = document.getElementById('lockSwitch');
+        const b = document.getElementById('lockBadge');
+        box.className = State.enableIdentityLock ? 'switch-box' : 'switch-box off';
+        b.textContent = State.enableIdentityLock ? 'ON' : 'OFF';
+      }
+    }
+
+    function setGenStatus(text) {
+      const b = document.getElementById('genStatusBanner');
+      if (b) {
+        b.style.display = 'block';
+        b.textContent = text;
+      }
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(blob);
+      });
+    }
+
+    async function callFalQueue(endpoint, inputObj, label) {
+      const key = State.falKey.trim();
+      if (!key) throw new Error('STEP 0 で Fal.ai APIキーを登録してください');
+      setGenStatus('⏳ ' + label + ' を開始しています...');
+      const r = await fetch('https://queue.fal.run/' + endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': 'Key ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputObj)
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error('APIエラー (' + r.status + '): ' + t.slice(0, 120));
+      }
+      const d = await r.json();
+      if (d.video || d.video_url || d.vocals) return d;
+      for (let i = 0; i < 180; i++) {
+        await new Promise(w => setTimeout(w, 2500));
+        setGenStatus('⏳ ' + label + ' 実行中... (' + Math.round((i + 1) * 2.5) + '秒経過)');
+        const sr = await fetch(d.status_url, { headers: { 'Authorization': 'Key ' + key } });
+        const sd = await sr.json();
+        if (sd.status === 'COMPLETED') {
+          const fr = await fetch(d.response_url, { headers: { 'Authorization': 'Key ' + key } });
+          return await fr.json();
+        }
+        if (sd.status === 'FAILED') {
+          throw new Error(label + ' に失敗しました');
+        }
+      }
+      throw new Error(label + ' がタイムアウトしました');
+    }
+
+    async function runLipsyncGeneration() {
+      const isVideoV2V = (State.sourceMode === 'video' && State.videoSubPattern === 'v2v');
+      if (isVideoV2V && !State.videoFileBlob) {
+        notify('STEP 1 で動画ファイル（MP4 / MOV）を選択してください', true);
+        return;
+      }
+      if (!isVideoV2V && !State.photoImg) {
+        notify('STEP 1 で写真を選択してください', true);
+        return;
+      }
+      if (!State.audioBuffer) {
+        notify('STEP 2 で楽曲ファイルを選択してください', true);
+        return;
+      }
+      const btn = document.getElementById('startGenBtn');
+      if (btn) btn.disabled = true;
+
+      try {
+        const durSec = Math.min(15.0, Math.max(1.0, State.endSec - State.startSec));
+        const durMs = Math.round(durSec * 1000);
+        const guideBuf = buildCutBuffer(State.enableIdentityLock);
+        const masterBuf = buildCutBuffer(false);
+        let guideAudioUrl = await blobToDataUrl(bufferToWavBlob(guideBuf));
+        const masterAudioUrl = await blobToDataUrl(bufferToWavBlob(masterBuf));
+
+        // 0. AIボーカル自動分離 (fal-ai/demucs) がONの場合はボーカル声のみを抽出
+        if (State.useDemucs) {
+          const demucsRes = await callFalQueue('fal-ai/demucs', {
+            audio_url: masterAudioUrl,
+            stems: ['vocals'],
+            output_format: 'wav'
+          }, '手順1: AIボーカル自動分離 (Demucs)');
+          if (demucsRes && demucsRes.vocals && demucsRes.vocals.url) {
+            guideAudioUrl = demucsRes.vocals.url;
+          }
+        }
+
+        // 1. ベース映像の準備（動画モードならそのまま、写真モードなら高解像度Canvas＋ミリ秒指定で固定ビデオ化）
+        let fixedVideoUrl = '';
+        if (isVideoV2V) {
+          setGenStatus('⏳ 動画データを準備しています...');
+          fixedVideoUrl = await blobToDataUrl(State.videoFileBlob);
+        } else {
+          const fullCanvas = document.createElement('canvas');
+          renderStageToCanvas(fullCanvas, true);
+          const pngDataUrl = fullCanvas.toDataURL('image/png');
+          const composeRes = await callFalQueue('fal-ai/ffmpeg-api/compose', {
+            tracks: [
+              {
+                id: 'main-video',
+                type: 'image',
+                keyframes: [{ timestamp: 0, duration: durMs, url: pngDataUrl }]
+              },
+              {
+                id: 'main-audio',
+                type: 'audio',
+                keyframes: [{ timestamp: 0, duration: durMs, url: guideAudioUrl }]
+              }
+            ]
+          }, '手順2: 元写真の100%顔固定ビデオ化 (' + durSec.toFixed(1) + '秒)');
+
+          fixedVideoUrl = composeRes.video_url || (composeRes.video && composeRes.video.url);
+          if (!fixedVideoUrl) throw new Error('固定ビデオの作成に失敗しました');
+        }
+
+        // 2. 口元専用V2Vリップシンク
+        let v2vRes = null;
+        if (State.model === 'react1') {
+          v2vRes = await callFalQueue('fal-ai/sync-lipsync/react-1', {
+            video_url: fixedVideoUrl,
+            audio_url: guideAudioUrl,
+            emotion: 'neutral',
+            model_mode: 'lips',
+            temperature: 0.25,
+            lipsync_mode: 'cut_off'
+          }, '手順3: Sync React-1 (口唇限定モード)');
+        } else if (State.model === 'latentsync') {
+          v2vRes = await callFalQueue('fal-ai/latentsync', {
+            video_url: fixedVideoUrl,
+            audio_url: guideAudioUrl,
+            guidance_scale: 1.0,
+            loop_mode: 'pingpong'
+          }, '手順3: LatentSync V2V');
+        } else if (State.model === 'veed_v2') {
+          v2vRes = await callFalQueue('veed/lipsync/v2', {
+            video_url: fixedVideoUrl,
+            audio_url: guideAudioUrl
+          }, '手順3: VEED Lipsync v2');
+        } else {
+          v2vRes = await callFalQueue('fal-ai/sync-lipsync/v3', {
+            video_url: fixedVideoUrl,
+            audio_url: guideAudioUrl,
+            sync_mode: 'cut_off'
+          }, '手順3: Sync-3 Video');
+        }
+
+        const lipsyncedUrl = (v2vRes && v2vRes.video && v2vRes.video.url) || v2vRes.video_url;
+        if (!lipsyncedUrl) throw new Error('口パク映像の生成に失敗しました');
+
+        // 3. 原曲100%高音質音源とマージ
+        const mergeRes = await callFalQueue('fal-ai/ffmpeg-api/merge-audio-video', {
+          video_url: lipsyncedUrl,
+          audio_url: masterAudioUrl
+        }, '手順4: 原曲の高音質音源を合成');
+
+        const finalUrl = (mergeRes && mergeRes.video && mergeRes.video.url) || mergeRes.video_url || lipsyncedUrl;
+        State.finalVideoUrl = finalUrl;
+
+        const box = document.getElementById('resultVideoBox');
+        const player = document.getElementById('finalVideoPlayer');
+        box.style.display = 'block';
+        player.src = finalUrl + (finalUrl.indexOf('#') === -1 ? '#t=0.001' : '');
+        player.load();
+        setGenStatus('✅ 完成しました！下のプレイヤーで再生・保存できます。');
+        notify('🎉 リップシンクMVが完成しました！');
+      } catch (err) {
+        setGenStatus('⚠️ ' + (err.message || String(err)));
+        notify(err.message || 'エラーが発生しました', true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function openFinalVideoDirect() {
+      if (!State.finalVideoUrl) return;
+      window.open(State.finalVideoUrl, '_blank');
+    }
+
+    async function saveFinalVideoToIphone() {
+      if (!State.finalVideoUrl) return;
+      try {
+        notify('📲 iPhone保存用に動画データを準備中...');
+        const r = await fetch(State.finalVideoUrl);
+        const b = await r.blob();
+        const f = new File([b], State.songTitle + '_MV.mp4', { type: 'video/mp4' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+          await navigator.share({ files: [f], title: State.songTitle + '_MV.mp4' });
+          return;
+        }
+      } catch (e) {}
+      window.open(State.finalVideoUrl, '_blank');
+    }
+
+    // 初期描画を同期実行
+    try { loadSavedKey(); } catch (e) {}
+    try { drawMiniPreview(); } catch (e) {}
+  </script>
+
+  <!-- GitHub Pages 自動デプロイスクリプト（アップロードされるindex.htmlからは自動で除去されます） -->
+  
+
+</body></html>
